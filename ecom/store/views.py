@@ -6,7 +6,21 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm
 from django import forms
+from .models import Category
 
+def category(request, cat):
+    # Replace Hyphens (if any) with spaces
+    cat = cat.replace('-', ' ')
+    # Grab category from URL // if cat doesn't exist we wanna let the user know
+    try:
+        # Look up the category
+        category = Category.objects.get(name=cat)
+        products = Product.objects.filter(category=category)
+        return render(request, 'category.html', {'products': products, 'category': category})
+    except:
+        messages.success(request, ("That category doesn't exist"))
+        return redirect('home')
+        
 
 def product(request,pk):
     product = Product.objects.get(id=pk)
@@ -34,9 +48,6 @@ def login_user(request):
             return redirect('login')
     else:
         return render(request, 'login.html', {})
-
-
-
 
     return render(request, 'login.html', {})
 
